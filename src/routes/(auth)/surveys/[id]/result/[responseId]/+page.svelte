@@ -27,13 +27,13 @@
 	};
 
 	const COLORS = [
-		{ border: 'rgb(54, 162, 235)', bg: 'rgba(54, 162, 235, 0.2)' },
-		{ border: 'rgb(255, 99, 132)', bg: 'rgba(255, 99, 132, 0.2)' },
-		{ border: 'rgb(75, 192, 192)', bg: 'rgba(75, 192, 192, 0.2)' },
-		{ border: 'rgb(255, 206, 86)', bg: 'rgba(255, 206, 86, 0.2)' },
-		{ border: 'rgb(153, 102, 255)', bg: 'rgba(153, 102, 255, 0.2)' },
-		{ border: 'rgb(255, 159, 64)', bg: 'rgba(255, 159, 64, 0.2)' },
-		{ border: 'rgb(201, 203, 207)', bg: 'rgba(201, 203, 207, 0.2)' }
+		{ border: 'rgb(0, 114, 178)', bg: 'rgba(0, 114, 178, 0.2)' }, // Azul
+		{ border: 'rgb(213, 94, 0)', bg: 'rgba(213, 94, 0, 0.2)' }, // Vermelho-alaranjado
+		{ border: 'rgb(0, 158, 115)', bg: 'rgba(0, 158, 115, 0.2)' }, // Verde-azulado
+		{ border: 'rgb(230, 159, 0)', bg: 'rgba(230, 159, 0, 0.2)' }, // Laranja
+		{ border: 'rgb(204, 121, 167)', bg: 'rgba(204, 121, 167, 0.2)' }, // Roxo-avermelhado
+		{ border: 'rgb(86, 180, 233)', bg: 'rgba(86, 180, 233, 0.2)' }, // Azul-céu
+		{ border: 'rgb(240, 228, 66)', bg: 'rgba(240, 228, 66, 0.2)' } // Amarelo
 	];
 
 	let labels = $derived(data.answers.map((a) => a.questionTitle));
@@ -44,8 +44,8 @@
 		const myDataset = {
 			label: 'Eu',
 			data: myValues,
-			borderColor: 'rgb(0, 112, 243)',
-			backgroundColor: 'rgba(0, 112, 243, 0.1)',
+			borderColor: 'rgb(0, 0, 0)',
+			backgroundColor: 'rgba(0, 0, 0, 0.1)',
 			borderWidth: 2,
 			pointRadius: 4
 		};
@@ -201,7 +201,7 @@
 		<p>{data.survey.description}</p>
 		<ol>
 			{#each data.answers as a (a.id)}
-				<li>{a.questionTitle}: <input disabled value={a.value}></li>
+				<li>{a.questionTitle}: <input disabled value={a.value} /></li>
 			{/each}
 		</ol>
 	</div>
