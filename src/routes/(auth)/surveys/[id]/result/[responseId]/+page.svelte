@@ -11,6 +11,9 @@
 	let showDeleteConfirm = $state(false);
 	let showSurveyDetail = $state(false);
 	let currentSlide = $state(0);
+	let savingTeam = $state(false);
+	let justSavedTeam = $state(false);
+	let saveTimeout: ReturnType<typeof setTimeout>;
 
 	const CHART_OPTIONS: ChartOptions<'radar'> = {
 		scales: {
@@ -169,7 +172,24 @@
 	</div>
 {/if}
 
-<form method="post" action="?/setTeam" use:enhance class="mt-8">
+<form
+	method="post"
+	action="?/setTeam"
+	use:enhance={() => {
+		savingTeam = true;
+		justSavedTeam = false;
+		return async ({ result, update }) => {
+			savingTeam = false;
+			if (result.type === 'success') {
+				justSavedTeam = true;
+				clearTimeout(saveTimeout);
+				saveTimeout = setTimeout(() => (justSavedTeam = false), 2500);
+			}
+			await update();
+		};
+	}}
+	class="mt-8"
+>
 	<label class="block max-w-xs">
 		<span class="text-sm font-medium text-text-muted">Minha Turma</span>
 		<input
@@ -179,11 +199,30 @@
 			class="mt-1 w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-text"
 		/>
 	</label>
-	<button
-		class="mt-3 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2"
-	>
-		Salvar
-	</button>
+
+	<div class="mt-3 flex items-center gap-3">
+		<button
+			disabled={savingTeam}
+			class="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2 disabled:opacity-60"
+		>
+			{savingTeam ? 'Salvando...' : 'Salvar'}
+		</button>
+
+		{#if justSavedTeam}
+			<span class="flex items-center gap-1 text-sm text-success">
+				<svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+					<path
+						d="M4 10.5L8 14.5L16 6"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+				Salvo
+			</span>
+		{/if}
+	</div>
 </form>
 
 <div class="mt-6 flex flex-wrap gap-3">
