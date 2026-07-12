@@ -39,16 +39,22 @@
 	let labels = $derived(data.answers.map((a) => a.questionTitle));
 	let myValues = $derived(data.answers.map((a) => a.value));
 
+	let myChartData = $derived({
+		labels,
+		datasets: [
+			{
+				label: 'Eu',
+				data: myValues,
+				borderColor: 'rgb(0, 0, 0)',
+				backgroundColor: 'rgba(0, 0, 0, 0.1)',
+				borderWidth: 2,
+				pointRadius: 4
+			}
+		]
+	});
+
 	let slides = $derived.by(() => {
 		const s: { label: string; chartData: ChartData<'radar'> }[] = [];
-		const myDataset = {
-			label: 'Eu',
-			data: myValues,
-			borderColor: 'rgb(0, 0, 0)',
-			backgroundColor: 'rgba(0, 0, 0, 0.1)',
-			borderWidth: 2,
-			pointRadius: 4
-		};
 
 		if (data.comparison?.allAverage) {
 			s.push({
@@ -56,7 +62,7 @@
 				chartData: {
 					labels,
 					datasets: [
-						myDataset,
+						myChartData.datasets[0],
 						{
 							label: 'Média de Todos',
 							data: data.comparison.allAverage.map((a) => a.value),
@@ -76,7 +82,7 @@
 				chartData: {
 					labels,
 					datasets: [
-						myDataset,
+						myChartData.datasets[0],
 						{
 							label: 'Média da Turma',
 							data: data.comparison.teamAverage.map((a) => a.value),
@@ -99,7 +105,7 @@
 					chartData: {
 						labels,
 						datasets: [
-							myDataset,
+							myChartData.datasets[0],
 							{
 								label: member.userName,
 								data: member.answers.map((a) => a.value),
@@ -124,7 +130,7 @@
 </p>
 
 <RadarChart
-	data={slides[currentSlide]?.chartData ?? { labels, datasets: [] }}
+	data={showCompare ? (slides[currentSlide]?.chartData ?? myChartData) : myChartData}
 	options={CHART_OPTIONS}
 />
 
