@@ -224,14 +224,19 @@
 	<div class="mt-6 rounded-xl border border-border bg-surface p-4">
 		<h2 class="text-lg font-medium text-text">{data.survey.title}</h2>
 		<p class="mt-1 text-sm text-text-muted">{data.survey.description}</p>
-		<ol class="mt-4 space-y-2">
+		<ol class="mt-4 space-y-4">
 			{#each data.answers as a (a.id)}
-				<li class="flex items-center justify-between gap-3 text-sm text-text">
-					<span>{a.questionTitle}</span>
+				<li class="flex items-start justify-between gap-3">
+					<div>
+						<p class="text-sm font-medium text-text">{a.questionTitle}</p>
+						{#if a.questionDescription}
+							<p class="mt-0.5 text-sm text-text-muted">{a.questionDescription}</p>
+						{/if}
+					</div>
 					<input
 						disabled
 						value={a.value}
-						class="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1 text-center text-text-muted"
+						class="w-16 shrink-0 rounded-lg border border-border bg-surface-2 px-2 py-1 text-center text-text-muted"
 					/>
 				</li>
 			{/each}
