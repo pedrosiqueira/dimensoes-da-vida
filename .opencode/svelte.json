@@ -1,0 +1,26 @@
+{
+	"$schema": "https://svelte.dev/opencode/schema.json",
+	"mcp": {
+		"type": "remote", // or "local" — defaults to remote
+		"enabled": true
+	},
+	"subagent": {
+		"enabled": true,
+		"agents": {
+			"svelte-file-editor": {
+				"model": "<other-model>", // defaults to the same as main agent
+				"temperature": 1, // defaults to unset
+				"top_p": 0.7, // defaults to unset
+				"maxSteps": 20 // defaults to unlimited
+			}
+		}
+	},
+	"skills": {
+		// this can be `true`, or an array of skills to enable
+		// e.g. ["svelte-core-bestpractices"]
+		"enabled": true
+	},
+	"instructions": {
+		"enabled": true
+	}
+}
