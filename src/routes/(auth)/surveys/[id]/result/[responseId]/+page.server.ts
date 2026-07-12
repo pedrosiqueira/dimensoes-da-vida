@@ -157,7 +157,7 @@ export const actions: Actions = {
 		}
 
 		const formData = await event.request.formData();
-		const teamName = formData.get('teamName')?.toString()?.trim().toLowerCase() ?? '';
+		const teamName = formData.get('teamName')?.toString()?.trim().toUpperCase() ?? '';
 
 		const existing = await db
 			.select({ id: surveyResponse.id })

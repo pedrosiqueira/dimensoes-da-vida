@@ -33,6 +33,7 @@ export const actions: Actions = {
 		const formData = await event.request.formData();
 		const sharingLevel = formData.get('sharingLevel')?.toString();
 		const answersRaw = formData.get('answers')?.toString();
+		const teamName = formData.get('teamName')?.toString()?.trim().toUpperCase() || null;
 
 		if (!sharingLevel || !['public', 'anonymous'].includes(sharingLevel)) {
 			return fail(400, { message: 'Nível de compartilhamento inválido' });
@@ -72,6 +73,7 @@ export const actions: Actions = {
 				.values({
 					userId,
 					surveyId: +event.params.id,
+					teamName,
 					sharingLevel: sharingLevel as 'public' | 'anonymous',
 					completedAt: now
 				})
