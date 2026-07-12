@@ -17,11 +17,21 @@
 			r: {
 				min: 0,
 				max: 10,
-				ticks: { stepSize: 1 }
+				ticks: {
+					stepSize: 1,
+					color: 'rgba(255, 255, 255, 0.85)',
+					backdropColor: 'transparent'
+				},
+				grid: { color: 'rgba(255, 255, 255, 0.15)' },
+				angleLines: { color: 'rgba(255, 255, 255, 0.15)' },
+				pointLabels: { color: 'rgba(255, 255, 255, 0.9)' }
 			}
 		},
 		plugins: {
-			legend: { position: 'bottom' },
+			legend: {
+				position: 'bottom',
+				labels: { color: 'rgba(255, 255, 255, 0.9)' }
+			},
 			tooltip: { enabled: true }
 		}
 	};
@@ -39,16 +49,22 @@
 	let labels = $derived(data.answers.map((a) => a.questionTitle));
 	let myValues = $derived(data.answers.map((a) => a.value));
 
+	let myDataset = $derived({
+		label: 'Eu',
+		data: myValues,
+		borderColor: 'rgb(255, 255, 255)',
+		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+		borderWidth: 2,
+		pointRadius: 4
+	});
+
+	let baseChartData = $derived<ChartData<'radar'>>({
+		labels,
+		datasets: [myDataset]
+	});
+
 	let slides = $derived.by(() => {
 		const s: { label: string; chartData: ChartData<'radar'> }[] = [];
-		const myDataset = {
-			label: 'Eu',
-			data: myValues,
-			borderColor: 'rgb(255, 255, 255)',
-			backgroundColor: 'rgba(255, 255, 255, 0.1)',
-			borderWidth: 2,
-			pointRadius: 4
-		};
 
 		if (data.comparison?.allAverage) {
 			s.push({
@@ -116,6 +132,10 @@
 
 		return s;
 	});
+
+	let displayedChartData = $derived(
+		showCompare ? (slides[currentSlide]?.chartData ?? baseChartData) : baseChartData
+	);
 </script>
 
 <h1 class="text-2xl font-semibold">Gráfico Radar</h1>
@@ -124,10 +144,7 @@
 </p>
 
 <div class="mt-6">
-	<RadarChart
-		data={slides[currentSlide]?.chartData ?? { labels, datasets: [] }}
-		options={CHART_OPTIONS}
-	/>
+	<RadarChart data={displayedChartData} options={CHART_OPTIONS} />
 </div>
 
 {#if showCompare && slides.length > 0}
