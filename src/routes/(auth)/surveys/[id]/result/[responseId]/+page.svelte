@@ -207,7 +207,12 @@
 		<p>{data.survey.description}</p>
 		<ol>
 			{#each data.answers as a (a.id)}
-				<li>{a.questionTitle}: <input disabled value={a.value} /></li>
+				<li>
+					<strong>{a.questionTitle}</strong>: <input disabled value={a.value} />
+					{#if a.questionDescription}
+						<p>{a.questionDescription}</p>
+					{/if}
+				</li>
 			{/each}
 		</ol>
 	</div>
