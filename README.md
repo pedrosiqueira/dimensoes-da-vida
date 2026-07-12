@@ -89,4 +89,11 @@ You can preview the production build with `npm run preview`.
 
 ## dúvidas
 
+Ao salvar nome da turma, tem que avisar
+
+Responsivo para celular
+
+Permitir que radar não seja de 0 a 10 (vai ter que alterar banco)
+
+
 `return fail(400, { message: 'Nome deve ter entre 2 e 32 caracteres' });` não estava funcionando. provavelmente os outros casos que retornam fail tbm não estão.

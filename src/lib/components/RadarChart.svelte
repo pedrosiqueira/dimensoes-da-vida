@@ -24,7 +24,7 @@
 	let { data, options }: { data: ChartData<'radar'>; options?: ChartOptions<'radar'> } = $props();
 
 	let canvas: HTMLCanvasElement;
-	let chartInstance: Chart<'radar'> | undefined = $state();
+	let chartInstance: Chart<'radar'> | undefined;
 
 	$effect(() => {
 		if (!canvas) return;
@@ -35,8 +35,11 @@
 	$effect(() => {
 		if (!chartInstance) return;
 		chartInstance.data = data;
+		if (options) chartInstance.options = options;
 		chartInstance.update();
 	});
 </script>
 
-<canvas bind:this={canvas} aria-label="Gráfico radar"></canvas>
+<div class="relative mx-auto h-64 w-full max-w-md sm:h-80 md:h-96">
+	<canvas bind:this={canvas} aria-label="Gráfico radar"></canvas>
+</div>

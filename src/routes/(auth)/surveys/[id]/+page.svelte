@@ -32,49 +32,66 @@
 	}
 </script>
 
-<h1>{data.survey.title}</h1>
-<p>{data.survey.description}</p>
+<h1 class="text-2xl font-semibold">{data.survey.title}</h1>
+<p class="mt-1 text-text-muted">{data.survey.description}</p>
 
-<div class="question">
-	<label>
-		<strong>Nome da turma</strong> <small>(opcional)</small>
-		<input type="text" bind:value={teamName} placeholder="Ex: turma A" />
-	</label>
+<div class="mt-6 space-y-6">
+	<div>
+		<label class="block">
+			<span class="text-sm font-medium text-text-muted">
+				Nome da turma <span class="text-xs">(opcional)</span>
+			</span>
+			<input
+				type="text"
+				bind:value={teamName}
+				placeholder="Ex: turma A"
+				class="mt-1 w-full max-w-xs rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-text"
+			/>
+		</label>
+	</div>
+
+	{#each data.questions as q, i (q.id)}
+		<div class="rounded-xl border border-border bg-surface p-4">
+			<label for="q-{q.id}" class="block font-medium text-text">
+				{i + 1}. {q.title}
+			</label>
+			{#if q.description}
+				<p class="mt-1 text-sm text-text-muted">{q.description}</p>
+			{/if}
+			<div class="mt-3 flex items-center gap-3">
+				<input
+					type="range"
+					id="q-{q.id}"
+					min="0"
+					max="10"
+					step="1"
+					value={answers[q.id] ?? 5}
+					oninput={(e) => handleInput(q.id, (e.target as HTMLInputElement).value)}
+					class="h-2 flex-1 accent-accent"
+				/>
+				<input
+					type="number"
+					min="0"
+					max="10"
+					value={answers[q.id] ?? ''}
+					oninput={(e) => handleInput(q.id, (e.target as HTMLInputElement).value)}
+					class="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1.5 text-center text-text"
+				/>
+			</div>
+		</div>
+	{/each}
 </div>
 
-{#each data.questions as q, i (q.id)}
-	<div class="question">
-		<label for="q-{q.id}">
-			<strong>{i + 1}. {q.title}</strong>
-		</label>
-		{#if q.description}
-			<p>{q.description}</p>
-		{/if}
-		<div class="slider-row">
-			<input
-				type="range"
-				id="q-{q.id}"
-				min="0"
-				max="10"
-				step="1"
-				value={answers[q.id] ?? 5}
-				oninput={(e) => handleInput(q.id, (e.target as HTMLInputElement).value)}
-			/>
-			<input
-				type="number"
-				min="0"
-				max="10"
-				value={answers[q.id] ?? ''}
-				oninput={(e) => handleInput(q.id, (e.target as HTMLInputElement).value)}
-			/>
-		</div>
-	</div>
-{/each}
-
-<button disabled={!allValid} onclick={() => (showModal = true)}>Gerar Gráfico</button>
+<button
+	disabled={!allValid}
+	onclick={() => (showModal = true)}
+	class="mt-6 w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40 sm:w-auto"
+>
+	Gerar Gráfico
+</button>
 
 {#if !allValid}
-	<ul class="validation-errors">
+	<ul class="mt-3 list-inside list-disc space-y-1 text-sm text-danger">
 		{#each validationErrors as error (error)}
 			<li>{error}</li>
 		{/each}
@@ -83,84 +100,51 @@
 
 {#if showModal}
 	<div
-		class="modal-backdrop"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
 		role="presentation"
 		onclick={() => (showModal = false)}
 		onkeydown={(e) => e.key === 'Escape' && (showModal = false)}
 	>
 		<div
-			class="modal"
+			class="w-full max-w-sm space-y-4 rounded-xl border border-border bg-surface-2 p-6"
 			role="dialog"
 			tabindex="-1"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={() => {}}
 		>
-			<h2>Compartilhar resultados</h2>
+			<h2 class="text-lg font-medium text-text">Compartilhar resultados</h2>
 			<form method="post" action="?/submit" use:enhance>
 				<input type="hidden" name="sharingLevel" value="public" />
 				<input type="hidden" name="answers" value={JSON.stringify(answers)} />
 				<input type="hidden" name="teamName" value={teamName} />
-				<button>
+				<button
+					class="w-full rounded-lg bg-accent px-4 py-2.5 text-left text-sm font-medium text-white hover:bg-accent-hover"
+				>
 					Público
-					<small>(Vejo os resultados dos outros e vice-versa)</small>
+					<span class="mt-0.5 block text-xs font-normal text-white/80">
+						(Vejo os resultados dos outros e vice-versa)
+					</span>
 				</button>
 			</form>
 			<form method="post" action="?/submit" use:enhance>
 				<input type="hidden" name="sharingLevel" value="anonymous" />
 				<input type="hidden" name="answers" value={JSON.stringify(answers)} />
 				<input type="hidden" name="teamName" value={teamName} />
-				<button>
+				<button
+					class="w-full rounded-lg border border-border px-4 py-2.5 text-left text-sm font-medium text-text hover:bg-surface"
+				>
 					Anônimo
-					<small>(Só vejo a média dos resultados, mas ninguém vê meu resultado)</small>
+					<span class="mt-0.5 block text-xs font-normal text-text-muted">
+						(Só vejo a média dos resultados, mas ninguém vê meu resultado)
+					</span>
 				</button>
 			</form>
-			<button onclick={() => (showModal = false)}>Cancelar</button>
+			<button
+				onclick={() => (showModal = false)}
+				class="w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface"
+			>
+				Cancelar
+			</button>
 		</div>
 	</div>
 {/if}
-
-<style>
-	.modal-backdrop {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	.modal {
-		background: white;
-		padding: 2rem;
-		border-radius: 8px;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-	button small {
-		display: block;
-		font-weight: normal;
-		font-size: 0.8rem;
-		margin-top: 0.25rem;
-	}
-	.slider-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-	input[type='range'] {
-		flex: 1;
-		max-width: 300px;
-	}
-	input[type='number'] {
-		width: 60px;
-	}
-	.validation-errors {
-		color: #b00;
-		font-size: 0.85rem;
-		margin-top: 0.5rem;
-		padding-left: 1.2rem;
-	}
-	.validation-errors li {
-		margin-bottom: 0.2rem;
-	}
-</style>

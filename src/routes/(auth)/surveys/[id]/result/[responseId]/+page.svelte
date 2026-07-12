@@ -39,22 +39,16 @@
 	let labels = $derived(data.answers.map((a) => a.questionTitle));
 	let myValues = $derived(data.answers.map((a) => a.value));
 
-	let myChartData = $derived({
-		labels,
-		datasets: [
-			{
-				label: 'Eu',
-				data: myValues,
-				borderColor: 'rgb(0, 0, 0)',
-				backgroundColor: 'rgba(0, 0, 0, 0.1)',
-				borderWidth: 2,
-				pointRadius: 4
-			}
-		]
-	});
-
 	let slides = $derived.by(() => {
 		const s: { label: string; chartData: ChartData<'radar'> }[] = [];
+		const myDataset = {
+			label: 'Eu',
+			data: myValues,
+			borderColor: 'rgb(255, 255, 255)',
+			backgroundColor: 'rgba(255, 255, 255, 0.1)',
+			borderWidth: 2,
+			pointRadius: 4
+		};
 
 		if (data.comparison?.allAverage) {
 			s.push({
@@ -62,7 +56,7 @@
 				chartData: {
 					labels,
 					datasets: [
-						myChartData.datasets[0],
+						myDataset,
 						{
 							label: 'Média de Todos',
 							data: data.comparison.allAverage.map((a) => a.value),
@@ -82,7 +76,7 @@
 				chartData: {
 					labels,
 					datasets: [
-						myChartData.datasets[0],
+						myDataset,
 						{
 							label: 'Média da Turma',
 							data: data.comparison.teamAverage.map((a) => a.value),
@@ -105,7 +99,7 @@
 					chartData: {
 						labels,
 						datasets: [
-							myChartData.datasets[0],
+							myDataset,
 							{
 								label: member.userName,
 								data: member.answers.map((a) => a.value),
@@ -124,122 +118,138 @@
 	});
 </script>
 
-<h1>Gráfico Radar</h1>
-<p>
-	<small>Respondido em {new Date(data.response.completedAt!).toLocaleDateString('pt-BR')}</small>
+<h1 class="text-2xl font-semibold">Gráfico Radar</h1>
+<p class="mt-1 text-sm text-text-muted">
+	Respondido em {new Date(data.response.completedAt!).toLocaleDateString('pt-BR')}
 </p>
 
-<RadarChart
-	data={showCompare ? (slides[currentSlide]?.chartData ?? myChartData) : myChartData}
-	options={CHART_OPTIONS}
-/>
+<div class="mt-6">
+	<RadarChart
+		data={slides[currentSlide]?.chartData ?? { labels, datasets: [] }}
+		options={CHART_OPTIONS}
+	/>
+</div>
 
 {#if showCompare && slides.length > 0}
-	<div class="carousel-controls">
+	<div class="mt-4 flex items-center justify-center gap-3 text-sm">
 		<button
 			onclick={() => (currentSlide = Math.max(0, currentSlide - 1))}
 			disabled={currentSlide === 0}
+			class="rounded-lg border border-border px-3 py-2 text-text hover:bg-surface-2 disabled:opacity-40"
 		>
 			Anterior
 		</button>
-		<span>{slides[currentSlide]?.label ?? ''} ({currentSlide + 1}/{slides.length})</span>
+		<span class="text-text-muted">
+			{slides[currentSlide]?.label ?? ''} ({currentSlide + 1}/{slides.length})
+		</span>
 		<button
 			onclick={() => (currentSlide = Math.min(slides.length - 1, currentSlide + 1))}
 			disabled={currentSlide === slides.length - 1}
+			class="rounded-lg border border-border px-3 py-2 text-text hover:bg-surface-2 disabled:opacity-40"
 		>
 			Próximo
 		</button>
 	</div>
 {/if}
 
-<form method="post" action="?/setTeam" use:enhance>
-	<label>
-		Minha Turma
-		<input type="text" name="teamName" bind:value={teamName} />
+<form method="post" action="?/setTeam" use:enhance class="mt-8">
+	<label class="block max-w-xs">
+		<span class="text-sm font-medium text-text-muted">Minha Turma</span>
+		<input
+			type="text"
+			name="teamName"
+			bind:value={teamName}
+			class="mt-1 w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-text"
+		/>
 	</label>
-	<button>Salvar</button>
+	<button
+		class="mt-3 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2"
+	>
+		Salvar
+	</button>
 </form>
 
-<button
-	disabled={slides.length === 0}
-	onclick={() => {
-		showCompare = !showCompare;
-		currentSlide = 0;
-	}}
->
-	{showCompare ? 'Remover comparação' : 'Comparar com outros'}
-</button>
-
-<button onclick={() => (showSurveyDetail = !showSurveyDetail)}>
-	{showSurveyDetail ? 'Fechar enquete' : 'Ver enquete'}
-</button>
-
-<button onclick={() => window.print()}>Imprimir enquete</button>
-
-<button onclick={() => (showDeleteConfirm = true)}>Excluir enquete</button>
-
-{#if showDeleteConfirm}
-	<div
-		class="modal-backdrop"
-		role="presentation"
-		onclick={() => (showDeleteConfirm = false)}
-		onkeydown={(e) => e.key === 'Escape' && (showDeleteConfirm = false)}
+<div class="mt-6 flex flex-wrap gap-3">
+	<button
+		disabled={slides.length === 0}
+		onclick={() => {
+			showCompare = !showCompare;
+			currentSlide = 0;
+		}}
+		class="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
 	>
-		<div
-			class="modal"
-			role="dialog"
-			tabindex="-1"
-			onclick={(e) => e.stopPropagation()}
-			onkeydown={() => {}}
-		>
-			<p>Tem certeza que deseja excluir sua resposta?</p>
-			<form method="post" action="?/deleteResponse" use:enhance>
-				<button>Confirmar exclusão</button>
-			</form>
-			<button onclick={() => (showDeleteConfirm = false)}>Cancelar</button>
-		</div>
-	</div>
-{/if}
+		{showCompare ? 'Remover comparação' : 'Comparar com outros'}
+	</button>
+
+	<button
+		onclick={() => (showSurveyDetail = !showSurveyDetail)}
+		class="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2"
+	>
+		{showSurveyDetail ? 'Fechar enquete' : 'Ver enquete'}
+	</button>
+
+	<button
+		onclick={() => window.print()}
+		class="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2"
+	>
+		Imprimir enquete
+	</button>
+
+	<button
+		onclick={() => (showDeleteConfirm = true)}
+		class="rounded-lg px-4 py-2.5 text-sm font-medium text-danger hover:bg-surface-2"
+	>
+		Excluir enquete
+	</button>
+</div>
 
 {#if showSurveyDetail}
-	<div>
-		<h2>{data.survey.title}</h2>
-		<p>{data.survey.description}</p>
-		<ol>
+	<div class="mt-6 rounded-xl border border-border bg-surface p-4">
+		<h2 class="text-lg font-medium text-text">{data.survey.title}</h2>
+		<p class="mt-1 text-sm text-text-muted">{data.survey.description}</p>
+		<ol class="mt-4 space-y-2">
 			{#each data.answers as a (a.id)}
-				<li>
-					<strong>{a.questionTitle}</strong>: <input disabled value={a.value} />
-					{#if a.questionDescription}
-						<p>{a.questionDescription}</p>
-					{/if}
+				<li class="flex items-center justify-between gap-3 text-sm text-text">
+					<span>{a.questionTitle}</span>
+					<input
+						disabled
+						value={a.value}
+						class="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1 text-center text-text-muted"
+					/>
 				</li>
 			{/each}
 		</ol>
 	</div>
 {/if}
 
-<style>
-	.carousel-controls {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-		margin: 1rem 0;
-	}
-	.modal-backdrop {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	.modal {
-		background: white;
-		padding: 2rem;
-		border-radius: 8px;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-</style>
+{#if showDeleteConfirm}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+		role="presentation"
+		onclick={() => (showDeleteConfirm = false)}
+		onkeydown={(e) => e.key === 'Escape' && (showDeleteConfirm = false)}
+	>
+		<div
+			class="w-full max-w-sm space-y-4 rounded-xl border border-border bg-surface-2 p-6"
+			role="dialog"
+			tabindex="-1"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={() => {}}
+		>
+			<p class="text-text">Tem certeza que deseja excluir sua resposta?</p>
+			<form method="post" action="?/deleteResponse" use:enhance>
+				<button
+					class="w-full rounded-lg bg-danger px-4 py-2.5 text-sm font-medium text-white hover:bg-danger-hover"
+				>
+					Confirmar exclusão
+				</button>
+			</form>
+			<button
+				onclick={() => (showDeleteConfirm = false)}
+				class="w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface"
+			>
+				Cancelar
+			</button>
+		</div>
+	</div>
+{/if}

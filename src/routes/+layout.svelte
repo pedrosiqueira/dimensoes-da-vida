@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '../app.css';
 	import { navigating } from '$app/state';
 	import type { LayoutData } from './$types';
 
@@ -7,7 +8,7 @@
 	let navItems = $derived(
 		data.user
 			? [
-					{ label: 'Dashboard', href: '/' },
+					{ label: 'Início', href: '/' },
 					{ label: 'Explorar', href: '/surveys' },
 					{ label: 'Minhas Enquetes', href: '/my-surveys' },
 					{ label: 'Perfil', href: '/profile' }
@@ -21,51 +22,29 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
-<nav>
-	{#each navItems as item (item.href)}
-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a href={item.href}>{item.label}</a>
-	{/each}
+<nav class="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+	<div class="mx-auto flex max-w-2xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+		{#each navItems as item (item.href)}
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a
+				href={item.href}
+				class="text-sm font-medium text-text-muted transition-colors hover:text-text sm:text-base"
+			>
+				{item.label}
+			</a>
+		{/each}
+	</div>
 </nav>
 
-<main>
+<main class="mx-auto max-w-2xl px-4 py-6 sm:px-6">
 	{@render children()}
 </main>
 
 {#if navigating.to}
-	<div id="loading-indicator">Carregando...</div>
+	<div
+		id="loading-indicator"
+		class="fixed inset-x-0 top-0 z-50 bg-accent py-1 text-center text-sm text-white"
+	>
+		Carregando...
+	</div>
 {/if}
-
-<style>
-	nav {
-		display: flex;
-		gap: 1rem;
-		padding: 0.75rem 1rem;
-		border-bottom: 1px solid #ccc;
-		background: #f9f9f9;
-	}
-	nav a {
-		text-decoration: none;
-		color: #333;
-		font-weight: 500;
-	}
-	nav a:hover {
-		color: #000;
-	}
-	main {
-		padding: 1rem;
-		max-width: 800px;
-		margin: 0 auto;
-	}
-	#loading-indicator {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		padding: 0.25rem;
-		background: #0070f3;
-		color: white;
-		text-align: center;
-		font-size: 0.875rem;
-	}
-</style>
