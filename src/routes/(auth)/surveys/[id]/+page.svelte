@@ -25,11 +25,6 @@
 	});
 
 	let allValid = $derived(validationErrors.length === 0);
-
-	function handleInput(qId: number, value: string) {
-		const num = value === '' ? undefined : Number(value);
-		answers[qId] = num as number;
-	}
 </script>
 
 <h1 class="text-2xl font-semibold">{data.survey.title}</h1>
@@ -65,16 +60,19 @@
 					min="0"
 					max="10"
 					step="1"
-					value={answers[q.id] ?? 5}
-					oninput={(e) => handleInput(q.id, (e.target as HTMLInputElement).value)}
+					bind:value={() => answers[q.id] ?? 5, (v) => (answers[q.id] = v)}
 					class="h-2 flex-1 accent-accent"
 				/>
 				<input
 					type="number"
+					inputmode="numeric"
 					min="0"
 					max="10"
 					value={answers[q.id] ?? ''}
-					oninput={(e) => handleInput(q.id, (e.target as HTMLInputElement).value)}
+					oninput={(e) => {
+						const num = e.currentTarget.value === '' ? undefined : Number(e.currentTarget.value);
+						answers[q.id] = num as number;
+					}}
 					class="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1.5 text-center text-text"
 				/>
 			</div>
