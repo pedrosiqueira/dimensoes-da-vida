@@ -7,6 +7,7 @@
 	let { data }: { data: PageData } = $props();
 
 	let showCompare = $state(false);
+	let hideMyResult = $state(false);
 	let teamName = $derived(data.response?.teamName ?? '');
 	let showDeleteConfirm = $state(false);
 	let showSurveyDetail = $state(false);
@@ -68,6 +69,7 @@
 
 	let slides = $derived.by(() => {
 		const s: { label: string; chartData: ChartData<'radar'> }[] = [];
+		const showMe = !hideMyResult;
 
 		if (data.comparison?.allAverage) {
 			s.push({
@@ -75,7 +77,7 @@
 				chartData: {
 					labels,
 					datasets: [
-						myDataset,
+						...(showMe ? [myDataset] : []),
 						{
 							label: 'Média de Todos',
 							data: data.comparison.allAverage.map((a) => a.value),
@@ -95,7 +97,7 @@
 				chartData: {
 					labels,
 					datasets: [
-						myDataset,
+						...(showMe ? [myDataset] : []),
 						{
 							label: 'Média da Turma',
 							data: data.comparison.teamAverage.map((a) => a.value),
@@ -118,7 +120,7 @@
 					chartData: {
 						labels,
 						datasets: [
-							myDataset,
+							...(showMe ? [myDataset] : []),
 							{
 								label: member.userName,
 								data: member.answers.map((a) => a.value),
@@ -230,12 +232,22 @@
 		disabled={slides.length === 0}
 		onclick={() => {
 			showCompare = !showCompare;
+			if (!showCompare) hideMyResult = false;
 			currentSlide = 0;
 		}}
 		class="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
 	>
 		{showCompare ? 'Remover comparação' : 'Comparar com outros'}
 	</button>
+
+	{#if showCompare && slides.length > 0}
+		<button
+			onclick={() => (hideMyResult = !hideMyResult)}
+			class="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2"
+		>
+			{hideMyResult ? 'Mostrar meu resultado' : 'Ocultar meu resultado'}
+		</button>
+	{/if}
 
 	<button
 		onclick={() => (showSurveyDetail = !showSurveyDetail)}
