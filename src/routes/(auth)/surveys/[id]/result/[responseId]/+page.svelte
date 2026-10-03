@@ -152,6 +152,21 @@
 	<RadarChart data={displayedChartData} options={CHART_OPTIONS} />
 </div>
 
+{#if showCompare}
+	<p class="mt-4 text-sm text-text-muted">
+		{#if slides[currentSlide]?.label === 'Média Geral'}
+			{data.comparison.allCount} participante{data.comparison.allCount === 1 ? '' : 's'} no total
+		{:else if slides[currentSlide]?.label === 'Média da Turma'}
+			{data.comparison.teamCount} participante{data.comparison.teamCount === 1 ? '' : 's'} de {data
+				.response.teamName}
+		{/if}
+	</p>
+{:else}
+	<p class="mt-4 text-sm text-text-muted">
+		{data.comparison.allCount} participante{data.comparison.allCount === 1 ? '' : 's'} no total
+	</p>
+{/if}
+
 {#if showCompare && slides.length > 0}
 	<div class="mt-4 flex items-center justify-center gap-3 text-sm">
 		<button

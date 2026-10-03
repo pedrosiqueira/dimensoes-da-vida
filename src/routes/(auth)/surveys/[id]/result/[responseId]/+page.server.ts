@@ -140,7 +140,39 @@ export const load: PageServerLoad = async (event) => {
 		}
 	}
 
-	const comparison = { allAverage, teamAverage, teamMembers };
+	const allCountResult = await db
+		.select({ count: sql<number>`count(distinct ${activeSurveyResponse.userId})` })
+		.from(activeSurveyResponse)
+		.where(
+			and(
+				eq(activeSurveyResponse.surveyId, +event.params.id),
+				isNotNull(activeSurveyResponse.completedAt)
+			)
+		)
+		.get();
+
+	let teamCountResult = null;
+	if (responseData.teamName) {
+		teamCountResult = await db
+			.select({ count: sql<number>`count(distinct ${activeSurveyResponse.userId})` })
+			.from(activeSurveyResponse)
+			.where(
+				and(
+					eq(activeSurveyResponse.surveyId, +event.params.id),
+					isNotNull(activeSurveyResponse.completedAt),
+					eq(activeSurveyResponse.teamName, responseData.teamName)
+				)
+			)
+			.get();
+	}
+
+	const comparison = {
+		allAverage,
+		teamAverage,
+		teamMembers,
+		allCount: allCountResult?.count ?? 0,
+		teamCount: teamCountResult?.count ?? 0
+	};
 
 	return {
 		response: responseData,
