@@ -3,6 +3,9 @@
 	import RadarChart from '$lib/components/RadarChart.svelte';
 	import type { PageData } from './$types';
 	import type { ChartData, ChartOptions } from 'chart.js';
+	import { flushSync } from 'svelte';
+
+	let printing = $state(false);
 
 	let { data }: { data: PageData } = $props();
 
@@ -16,29 +19,27 @@
 	let justSavedTeam = $state(false);
 	let saveTimeout: ReturnType<typeof setTimeout>;
 
-	const CHART_OPTIONS: ChartOptions<'radar'> = {
-		scales: {
-			r: {
-				min: 0,
-				max: 10,
-				ticks: {
-					stepSize: 1,
-					color: 'rgba(255, 255, 255, 0.85)',
-					backdropColor: 'transparent'
-				},
-				grid: { color: 'rgba(255, 255, 255, 0.15)' },
-				angleLines: { color: 'rgba(255, 255, 255, 0.15)' },
-				pointLabels: { color: 'rgba(255, 255, 255, 0.9)' }
-			}
-		},
-		plugins: {
-			legend: {
-				position: 'bottom',
-				labels: { color: 'rgba(255, 255, 255, 0.9)' }
+	let chartOptions = $derived.by<ChartOptions<'radar'>>(() => {
+		const text = printing ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+		const grid = printing ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.15)';
+		return {
+			animation: printing ? false : undefined,
+			scales: {
+				r: {
+					min: 0,
+					max: 10,
+					ticks: { stepSize: 1, color: text, backdropColor: 'transparent' },
+					grid: { color: grid },
+					angleLines: { color: grid },
+					pointLabels: { color: text }
+				}
 			},
-			tooltip: { enabled: true }
-		}
-	};
+			plugins: {
+				legend: { position: 'bottom', labels: { color: text } },
+				tooltip: { enabled: true }
+			}
+		};
+	});
 
 	const COLORS = [
 		{ border: 'rgb(0, 114, 178)', bg: 'rgba(0, 114, 178, 0.2)' }, // Azul
@@ -56,8 +57,8 @@
 	let myDataset = $derived({
 		label: 'Eu',
 		data: myValues,
-		borderColor: 'rgb(255, 255, 255)',
-		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+		borderColor: printing ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
+		backgroundColor: printing ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.1)',
 		borderWidth: 2,
 		pointRadius: 4
 	});
@@ -141,7 +142,18 @@
 	let displayedChartData = $derived(
 		showCompare ? (slides[currentSlide]?.chartData ?? baseChartData) : baseChartData
 	);
+
+	function handleBeforePrint() {
+		printing = true;
+		flushSync(); // garante que o gráfico seja redesenhado antes de imprimir
+	}
+
+	function handleAfterPrint() {
+		printing = false;
+	}
 </script>
+
+<svelte:window onbeforeprint={handleBeforePrint} onafterprint={handleAfterPrint} />
 
 <h1 class="text-2xl font-semibold">Gráfico Radar</h1>
 <p class="mt-1 text-sm text-text-muted">
@@ -149,7 +161,7 @@
 </p>
 
 <div class="mt-6">
-	<RadarChart data={displayedChartData} options={CHART_OPTIONS} />
+	<RadarChart data={displayedChartData} options={chartOptions} />
 </div>
 
 {#if showCompare}

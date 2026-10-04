@@ -40,6 +40,6 @@
 	});
 </script>
 
-<div class="relative mx-auto h-64 w-full max-w-md sm:h-80 md:h-96">
+<div class="chart-box relative mx-auto h-64 w-full max-w-md sm:h-80 md:h-96">
 	<canvas bind:this={canvas} aria-label="Gráfico radar"></canvas>
 </div>
