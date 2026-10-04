@@ -155,7 +155,7 @@
 
 <svelte:window onbeforeprint={handleBeforePrint} onafterprint={handleAfterPrint} />
 
-<h1 class="text-2xl font-semibold">Gráfico Radar</h1>
+<h1 class="text-2xl font-semibold">{data.survey.title}</h1>
 <p class="mt-1 text-sm text-text-muted">
 	Respondido em {new Date(data.response.completedAt!).toLocaleDateString('pt-BR')}
 </p>
